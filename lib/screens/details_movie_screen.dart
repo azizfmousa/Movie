@@ -2,13 +2,14 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:movie_app/data/genres_calss.dart';
+import 'package:movie_app/data/review_data.dart';
 import 'package:readmore/readmore.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:movie_app/data/movie.dart';
 
@@ -56,25 +57,52 @@ class _DetailsScreenState extends State<DetailsScreen> {
     );
     List results = response.data['results'];
     trailers = results.map((e) => e['key']).toList();
+    setState(() {});
     log(trailers.toString());
     log(response.statusCode.toString());
     return trailers;
+  }
+
+  List<Reviews> rev = [];
+
+  Future<List> reviews() async {
+    rev = [];
+    final dio = Dio();
+    const apiKey =
+        'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlMGU3Zjg2ZDUxZmQ5ZjFjMTFkNDFiZWE0OWUxNGYyNSIsInN1YiI6IjU3OWY1OTRjYzNhMzY4MTZlYjAwMWFiMCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.6fBb-vZSqVehkMduXoIE9O0BZKEZTnBPtA9GJ7gwiTc';
+    final response = await dio.get(
+      'https://api.themoviedb.org/3/movie/${widget.movie.id}/reviews',
+      options: Options(
+        headers: {'Authorization': 'Bearer $apiKey'},
+      ),
+    );
+    List results = response.data['results'];
+    rev = results.map((e) => Reviews.fromJson(e)).toList();
+    setState(() {});
+    log(rev.toString());
+    log(response.statusCode.toString());
+    return rev;
   }
 
   @override
   void initState() {
     super.initState();
     vedioKey();
+    reviews();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.blue,
+        title: const Text('Details'),
+      ),
       body: FutureBuilder(
         future: genresList(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasData) {
               return SingleChildScrollView(
@@ -164,7 +192,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                               height: 40,
                               child: const Text(
                                 // textAlign: TextAlign.center,
-                                'Trailer',
+                                'Trailers',
                                 style: TextStyle(
                                   color: Colors.lightBlueAccent,
                                   fontSize: 20,
@@ -179,12 +207,58 @@ class _DetailsScreenState extends State<DetailsScreen> {
                           ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: trailers.length,
+                            itemCount: trailers.take(3).length,
                             itemBuilder: (context, index) {
-                              return Image.network(
-                                'https://img.youtube.com/vi/${trailers[index]}/mqdefault.jpg',
-                                fit: BoxFit.cover,
-                                width: 200,
+                              return InkWell(
+                                onTap: () {
+                                  _launchURL(trailers[index]);
+                                },
+                                child: Image.network(
+                                  'https://img.youtube.com/vi/${trailers[index]}/mqdefault.jpg',
+                                  fit: BoxFit.cover,
+                                  width: 200,
+                                ),
+                              );
+                            },
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: rev.take(3).length,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                title: Row(
+                                  children: [
+                                    Text(
+                                      rev[index].name,
+                                      style: const TextStyle(
+                                        color: Colors.blue,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    Text(
+                                      Jiffy.parseFromDateTime(rev[index].time).fromNow(),
+                                    ),
+                                  ],
+                                ),
+                                subtitle: ReadMoreText(
+                                  rev[index].content,
+                                  trimMode: TrimMode.Line,
+                                  trimLines: 3,
+                                  colorClickableText: Colors.blueGrey,
+                                  trimCollapsedText: 'Show more',
+                                  trimExpandedText: 'Show less',
+                                  moreStyle: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.normal,
+                                    color: Colors.blueGrey,
+                                  ),
+                                ),
                               );
                             },
                           )
@@ -202,5 +276,12 @@ class _DetailsScreenState extends State<DetailsScreen> {
         },
       ),
     );
+  }
+
+  _launchURL(String key) async {
+    final Uri url = Uri.parse('https://www.youtube.com/watch?v=$key');
+    if (!await launchUrl(url)) {
+      throw Exception('Could not launch video');
+    }
   }
 }
