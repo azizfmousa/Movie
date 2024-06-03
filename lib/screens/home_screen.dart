@@ -1,83 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:movie_app/drawer_part/drawer_part.dart';
+import 'package:movie_app/page_content/app_bar_part.dart/app_bar_part.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:movie_app/data/movies_type_screens.dart';
-import 'package:movie_app/screens/now_playing_screen.dart';
-import 'package:movie_app/screens/top_rated_screen.dart';
-import 'package:movie_app/screens/upcomming_movies_screen.dart';
+import 'package:movie_app/providers/provider_movies_type';
+
 import 'package:pager/pager.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
   int _currentPage = 1;
   @override
   Widget build(BuildContext context) {
+    final activeScreen = ref.watch(typeProvider);
+    String titleOFPage(String activescree) {
+      if (activeScreen == 'now_playing') {
+        return 'Now Playing Movies';
+      }
+      if (activeScreen == 'top_rated') {
+        return 'Top Rated Movies';
+      }
+      if (activeScreen == 'upcoming') {
+        return 'upcoming Movies';
+      }
+
+      return 'popular Movies';
+    }
+
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.blue,
-          title: const Text('Popular Movies'),
+        appBar: MyAppBar(
+          title: titleOFPage(activeScreen),
         ),
-        drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              const DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                ),
-                child: Text(
-                  'Movies List',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.movie),
-                title: const Text('Now Playing'),
-                onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const NowPlayingScreen(),
-                  ));
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.movie_filter_sharp),
-                title: const Text('Popular'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.rate_review),
-                title: const Text('Top Rated'),
-                onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const TopRated(),
-                  ));
-                },
-              ),
-              ListTile(
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const UpComing(),
-                  ),
-                ),
-                leading: const Icon(Icons.movie_creation_sharp),
-                title: const Text('Upcomming'),
-              )
-            ],
-          ),
-        ),
+        drawer: const DrawerPart(),
         body: Column(
           children: [
-            Expanded(child: bodyOfScreens('popular', _currentPage)),
+            Expanded(child: bodyOfScreens(activeScreen, _currentPage)),
             Pager(
               currentPage: _currentPage,
               totalPages: 5,

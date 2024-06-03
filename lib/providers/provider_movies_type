@@ -1,0 +1,15 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+class MoviesTypeProvider extends StateNotifier<String> {
+  //3mlna class l class da pirth mn stateNotifire ps l stateNotifire Genertic <T> f e7na lazm n7dd no3 l state l e7na hn4t8l 3leha
+  MoviesTypeProvider() : super('popular');
+  String activeTypeOfMovie(String type) {
+    state=type;
+    return state;
+  }
+}
+
+final typeProvider = StateNotifierProvider<MoviesTypeProvider, String>((ref) {
+  return MoviesTypeProvider();
+});
+
+
