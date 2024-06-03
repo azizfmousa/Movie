@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:movie_app/drawer_part/drawer_class_for_body.dart';
-import 'package:movie_app/drawer_part/drawer_header.dart';
+import 'package:movie_app/page_content/drawer_part/drawer_class_for_body.dart';
+import 'package:movie_app/page_content/drawer_part/drawer_header.dart';
 import 'package:movie_app/providers/provider_movies_type';
-import 'package:movie_app/screens/top_rated_screen.dart';
-import 'package:movie_app/screens/upcomming_movies_screen.dart';
 
 class DrawerBody extends ConsumerStatefulWidget {
   const DrawerBody({super.key});

@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 import 'dart:developer';
 
@@ -6,12 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
-import 'package:movie_app/data/genres_calss.dart';
-import 'package:movie_app/data/review_data.dart';
 import 'package:readmore/readmore.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:movie_app/data/genres_calss.dart';
 import 'package:movie_app/data/movie.dart';
+import 'package:movie_app/data/review_data.dart';
+import 'package:movie_app/page_content/app_bar_part.dart/app_bar_part.dart';
 
 class DetailsScreen extends StatefulWidget {
   const DetailsScreen({
@@ -94,10 +96,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blue,
-        title: const Text('Details'),
-      ),
+      appBar: const MyAppBar(title: 'Details'),
       body: FutureBuilder(
         future: genresList(),
         builder: (context, snapshot) {
@@ -106,6 +105,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
           } else if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasData) {
               return SingleChildScrollView(
+                //col
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,18 +141,8 @@ class _DetailsScreenState extends State<DetailsScreen> {
                           ),
                           Wrap(
                             children: [
-                              RatingBarIndicator(
-                                itemSize: 20,
-                                rating: widget.movie.voteAvarage / 2,
-                                direction: Axis.horizontal,
-                                itemCount: 5,
-                                itemPadding: const EdgeInsets.fromLTRB(0, 0, 3, 0),
-                                itemBuilder: (context, _) => const Icon(
-                                  Icons.star,
-                                  opticalSize: .1,
-                                  color: Colors.blue,
-                                ),
-                              ),
+                              //rating bar
+                              RatingBar(widget: widget),
                               Text(
                                 widget.movie.voteAvarage.toStringAsFixed(2),
                                 style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.w600),
@@ -168,18 +158,10 @@ class _DetailsScreenState extends State<DetailsScreen> {
                           const SizedBox(
                             height: 10,
                           ),
-                          ReadMoreText(
-                            widget.movie.discription,
-                            trimMode: TrimMode.Line,
-                            trimLines: 2,
-                            colorClickableText: Colors.blue,
-                            trimCollapsedText: 'Show more',
-                            trimExpandedText: 'Show less',
-                            moreStyle: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue,
-                            ),
+                          //Readmore
+                          ReadMore(
+                            content: widget.movie.discription,
+                            widget: widget,
                           ),
                           const SizedBox(
                             height: 20,
@@ -204,6 +186,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                           const SizedBox(
                             height: 20,
                           ),
+                          //listview
                           ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
@@ -224,6 +207,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                           const SizedBox(
                             height: 20,
                           ),
+                          //listview
                           ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
@@ -246,18 +230,9 @@ class _DetailsScreenState extends State<DetailsScreen> {
                                     ),
                                   ],
                                 ),
-                                subtitle: ReadMoreText(
-                                  rev[index].content,
-                                  trimMode: TrimMode.Line,
-                                  trimLines: 3,
-                                  colorClickableText: Colors.blueGrey,
-                                  trimCollapsedText: 'Show more',
-                                  trimExpandedText: 'Show less',
-                                  moreStyle: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.blueGrey,
-                                  ),
+                                subtitle: ReadMore(
+                                  content: rev[index].content,
+                                  widget: widget,
                                 ),
                               );
                             },
@@ -283,5 +258,58 @@ class _DetailsScreenState extends State<DetailsScreen> {
     if (!await launchUrl(url)) {
       throw Exception('Could not launch video');
     }
+  }
+}
+
+class RatingBar extends StatelessWidget {
+  const RatingBar({
+    super.key,
+    required this.widget,
+  });
+
+  final DetailsScreen widget;
+
+  @override
+  Widget build(BuildContext context) {
+    return RatingBarIndicator(
+      itemSize: 20,
+      rating: widget.movie.voteAvarage / 2,
+      direction: Axis.horizontal,
+      itemCount: 5,
+      itemPadding: const EdgeInsets.fromLTRB(0, 0, 3, 0),
+      itemBuilder: (context, _) => const Icon(
+        Icons.star,
+        opticalSize: .1,
+        color: Colors.blue,
+      ),
+    );
+  }
+}
+
+class ReadMore extends StatelessWidget {
+  const ReadMore({
+    super.key,
+    required this.content,
+    required this.widget,
+  });
+
+  final String content;
+  final DetailsScreen widget;
+
+  @override
+  Widget build(BuildContext context) {
+    return ReadMoreText(
+      content,
+      trimMode: TrimMode.Line,
+      trimLines: 2,
+      colorClickableText: Colors.blue,
+      trimCollapsedText: 'Show more',
+      trimExpandedText: 'Show less',
+      moreStyle: const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.bold,
+        color: Colors.blue,
+      ),
+    );
   }
 }

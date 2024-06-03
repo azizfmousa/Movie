@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:movie_app/drawer_part/drawer_part.dart';
+import 'package:movie_app/page_content/drawer_part/drawer_part.dart';
 import 'package:movie_app/page_content/app_bar_part.dart/app_bar_part.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

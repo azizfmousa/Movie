@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:movie_app/drawer_part/drawer_body.dart';
+import 'package:movie_app/page_content/drawer_part/drawer_body.dart';
 
 class DrawerPart extends StatefulWidget {
   const DrawerPart({super.key});
